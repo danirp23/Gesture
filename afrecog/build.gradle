@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+android {
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libafrecog.so'
+        pickFirst 'lib/x86/libafrecog.so'
+    }
+    signingConfigs {
+    }
+    compileSdkVersion 23
+    buildToolsVersion '27.0.3'
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11"
+            }
+        }
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs/']
+        }
+    }
+    productFlavors {
+        armv7 {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+        }
+    }
+
+    defaultPublishConfig "armv7Release"
+    flavorDimensions "versionCode"
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    implementation 'com.android.support:appcompat-v7:23.4.0'
+    testImplementation 'junit:junit:4.12'
+}
