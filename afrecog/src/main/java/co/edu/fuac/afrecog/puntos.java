@@ -11,8 +11,8 @@ public class puntos {
     public puntos(){
 
     }
-    public ArrayList<Rect> puntillos(int img,AssetManager asset,int x1, int y1, int width, int height){
-        int[] detArray = _puntillos(img,asset,x1,y1,width,height);
+    public ArrayList<Rect> puntillos(int nob,int img,AssetManager asset,int x1, int y1, int width, int height){
+        int[] detArray = _puntillos(nob,img,asset,x1,y1,width,height);
 
         ArrayList<Rect> det = new ArrayList<Rect>();
         for( int i=0; i<detArray.length/2; i++ ){
@@ -25,7 +25,7 @@ public class puntos {
         return det;
     }
 
-    protected native int[] _puntillos(int id, AssetManager mng, int x, int y, int width, int height);
+    protected native int[] _puntillos(int nob,int id, AssetManager mng, int x, int y, int width, int height);
 
 
 

@@ -45,8 +45,6 @@ jint Java_co_edu_fuac_afrecog_FImageContext__1createImageRect(JNIEnv *env, jobje
                                                               jint w, jint h) {
 
     try{
-
-
         FImage& img = FImageContext::getInstance().getImage(id);
         FImageRect& imgRect = FImageContext::getInstance().createImageRect(img,x,y,w,h);
         return imgRect.getId();
@@ -419,7 +417,7 @@ size_t fileLength;
 char* pFileContent;
 
 extern "C"
-jintArray Java_co_edu_fuac_afrecog_puntos__1puntillos(JNIEnv *env, jobject instance, jint img1, jobject mng, jint x, jint y, jint width, jint height) {
+jintArray Java_co_edu_fuac_afrecog_puntos__1puntillos(JNIEnv *env, jobject instance, jint nob,jint img1, jobject mng, jint x, jint y, jint width, jint height) {
     pAssetManager = AAssetManager_fromJava(env, mng);
     // Open file
     pFile = AAssetManager_open(pAssetManager, "shape_predictor_68_face_landmarks.dat", AASSET_MODE_BUFFER);
@@ -434,7 +432,7 @@ jintArray Java_co_edu_fuac_afrecog_puntos__1puntillos(JNIEnv *env, jobject insta
 
     Puntos nose;
     vector<cv::Point> puntos;
-    nose.puntillos(img, puntos,pFileContent,fileLength,x,y,width,height);
+    nose.puntillos(nob,img, puntos,pFileContent,fileLength,x,y,width,height);
 
     int size = puntos.size() * 2;
 

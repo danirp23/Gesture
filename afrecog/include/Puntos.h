@@ -16,7 +16,7 @@ namespace uac{
         private:
 
         public:
-            void puntillos(FImage& img, std::vector<cv::Point>& puntos,char* pFileContent, size_t fileLength, int x, int y, int width, int height );
+            void puntillos(int nob,FImage& img, std::vector<cv::Point>& puntos,char* pFileContent, size_t fileLength, int x, int y, int width, int height );
 
     };
     struct membuf : std::streambuf

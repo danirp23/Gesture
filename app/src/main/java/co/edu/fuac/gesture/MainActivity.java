@@ -38,17 +38,29 @@ public class MainActivity extends AppCompatActivity {
     Uri imageUri;
     TextView tv1;
     ImageView imagenGil;
+    ImageView imagenGil2;
+    public int numim;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         imagenGil= (ImageView)findViewById(R.id.imageView);
+        imagenGil2= (ImageView)findViewById(R.id.imageView2);
 
         imagenGil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 imagenGil.setImageResource(R.drawable.botonoprimido);
+                numim=1;
+                openGallery();
+            }
+        });
+        imagenGil2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagenGil2.setImageResource(R.drawable.botonoprimido2);
+                numim=2;
                 openGallery();
             }
         });
@@ -68,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         //imagenGil.setImageBitmap(BitmapFactory.decodeResource(this.getResources(),R.drawable.dan));
 
     }
-    public String llamado(Bitmap bitmap){
+    public String llamado(Bitmap bitmap,int numi){
         //escalar
         String blabla = "wid original: "+bitmap.getWidth()+" hei original: "+bitmap.getHeight()+"\n";
 
@@ -100,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("id imagen ", "" + nose.getId());
             AssetManager asset = getBaseContext().getAssets();
 
-            pun = objP.puntillos(nose.getId(), asset, lalala.x, lalala.y, lalala.width + lalala.x, lalala.height + (lalala.y));
+            pun = objP.puntillos(numi,nose.getId(), asset, lalala.x, lalala.y, lalala.width + lalala.x, lalala.height + (lalala.y));
 
             Log.d("puntos ", "" + pun.size());
 
@@ -171,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            tv1.setText(llamado(bitmap));
+            tv1.setText(llamado(bitmap,numim));
         }
     }
     public void precision(ArrayList<Rect> imgInput,ArrayList<Rect> imgOriginal) {
