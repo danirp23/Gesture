@@ -431,7 +431,6 @@ jintArray Java_co_edu_fuac_afrecog_puntos__1puntillos(JNIEnv *env, jobject insta
 
     FImage &img = FImageContext::getInstance().getImage(img1);
 
-
     Puntos nose;
     vector<cv::Point> puntos;
     nose.puntillos(img, puntos,pFileContent,fileLength,x,y,width,height);
