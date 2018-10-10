@@ -46,6 +46,7 @@ jint Java_co_edu_fuac_afrecog_FImageContext__1createImageRect(JNIEnv *env, jobje
 
     try{
 
+
         FImage& img = FImageContext::getInstance().getImage(id);
         FImageRect& imgRect = FImageContext::getInstance().createImageRect(img,x,y,w,h);
         return imgRect.getId();
