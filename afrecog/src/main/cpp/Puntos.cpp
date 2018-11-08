@@ -62,7 +62,7 @@ void Puntos::puntillos(int nob,FImage& img ,std::vector<cv::Point>& puntos, char
     if(nob==1){
         cv_image<unsigned char> normal(imagenGris);
         std::vector<full_object_detection> detects;
-        frontal_face_detector jmjm;
+        //frontal_face_detector jmjm;
         dlib::rectangle nose2(x,y,width,height);
         dlib::full_object_detection shape = pose(normal, nose2);
         detects.push_back(shape);

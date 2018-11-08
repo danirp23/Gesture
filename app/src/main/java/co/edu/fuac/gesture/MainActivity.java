@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
         tv1= (TextView) findViewById(R.id.textView);
         //tv.setText(stringFromJNI());
 
-        //Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.drawable.jenn);
-        //Bitmap bitmap2= BitmapFactory.decodeResource(getResources(),R.drawable.armando);
         //bitmap= Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()/2, bitmap.getHeight()/2, false);
         //tv.setText(llamado(bitmap));
         //llamado(bitmap2);
@@ -115,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
             pun = objP.puntillos(numi,nose.getId(), asset, lalala.x, lalala.y, lalala.width + lalala.x, lalala.height + (lalala.y));
 
             Log.d("puntos ", "" + pun.size());
-
+            imagenGil.setImageResource(R.drawable.boton);
+            imagenGil2.setImageResource(R.drawable.boton2);
             Lienzo fondo = new Lienzo(this, bitmap, lalala.width, lalala.height, lalala.x, lalala.y, pun);
             layout1.addView(fondo);
         }

@@ -298,6 +298,7 @@ public class FaceContext {
     protected native void _recognize(int id, double[] c, int[] cat);
     protected native void _saveRecogModel();
     protected native void _loadRecogModel();
+
     protected native void _createDetectorParams();
     protected native void _addDetectorParam(String key, String value);
     protected native void _createDetector(String name);
