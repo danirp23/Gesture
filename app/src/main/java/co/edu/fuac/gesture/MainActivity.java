@@ -11,13 +11,17 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,12 +35,39 @@ import co.edu.fuac.afrecog.Rect;
 import co.edu.fuac.afrecog.puntos;
 
 import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE = 100;
     Uri imageUri;
     TextView tv1;
+    // ARMANDO
+    private TextView txt;
+    private Button btn;
+    private EditText edt;
+    private ImageView imagen;
+    JSONArray puntosJson  = new JSONArray();
+    private StorageReference mStorageRef;
+    private static final String PATH_START = "pointsImage";
+    //ARMANDO
     ImageView imagenGil;
     ImageView imagenGil2;
     public int numim;
@@ -64,6 +95,12 @@ public class MainActivity extends AppCompatActivity {
                 openGallery();
             }
         });
+        //ARMANDO
+        txt = (TextView) findViewById(R.id.textView2);
+        btn = (Button) findViewById(R.id.button);
+        edt = (EditText) findViewById(R.id.editText);
+        imagen = (ImageView) findViewById(R.id.imageView3);
+        //ARMANDO
 
         // Example of a call to a native method
         //TextView tv = (TextView) findViewById(R.id.sample_text);
@@ -78,6 +115,65 @@ public class MainActivity extends AppCompatActivity {
         //imagenGil.setImageBitmap(BitmapFactory.decodeResource(this.getResources(),R.drawable.dan));
 
     }
+    //ARMANDO
+    //ARMANDO
+    public void mostrarPuntos(View v)  {
+        final String path = edt.getText().toString();
+        txt.setText(path);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reference = database.getReference(PATH_START).child(path).child(path);
+        System.out.println(reference);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String n = dataSnapshot.getValue().toString();
+                try {
+                    JSONObject jsonPoints = new JSONObject(n);
+                    String lectura = jsonPoints.getString("imgPuntos");
+                    puntosJson = jsonPoints.getJSONArray("imgPuntos");
+                    for (int j=0; j< puntosJson.length(); j++){
+                        txt.setText(puntosJson.getJSONObject(j).get("xy").toString());
+                    }
+                    //traerImgByName(path);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MainActivity.this,"No se puede cargar el cosiaso", Toast.LENGTH_LONG).show();
+            }
+        });
+        traerImgByName(path);
+    }
+    public void traerImgByName(String nombre) {
+        String img = nombre + ".jpg";
+        try {
+            final File localFile = File.createTempFile(nombre, "jpg");
+            mStorageRef = FirebaseStorage.getInstance().getReference();
+            mStorageRef.child(img).getFile(localFile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Bitmap bitImg = BitmapFactory.decodeFile(localFile.getPath());
+                            txt.setText("bitmap" + bitImg);
+                            final RequestOptions options = new RequestOptions()
+                                    .centerCrop()
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+                            Glide.with(MainActivity.this)
+                                    .load(localFile)
+                                    .apply(options)
+                                    .into(imagen);
+
+                            imagen.setVisibility(View.VISIBLE);
+                        }
+                    });
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "error" + e, Toast.LENGTH_LONG).show();
+        }
+    }
+    //ARMANDO
     public String llamado(Bitmap bitmap,int numi){
         //escalar
         String blabla = "wid original: "+bitmap.getWidth()+" hei original: "+bitmap.getHeight()+"\n";
