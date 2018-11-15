@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     Uri imageUri;
     TextView tv1;
     // ARMANDO
+    private static final String PATH_STARTPOR = "pointsPorcentaje";
+    ArrayList<Float> precisionPorcentaje = new ArrayList<Float>();
     private TextView txt;
     private Button btn;
     private EditText edt;
@@ -67,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
     JSONArray puntosJson  = new JSONArray();
     private StorageReference mStorageRef;
     private static final String PATH_START = "pointsImage";
+    ArrayList<Rect> porcentajePrecision = new ArrayList<Rect>();
+    ArrayList<Rect> pun = new ArrayList<Rect>();
+    ArrayList<Rect> puntosGuardar = new ArrayList<Rect>();
     //ARMANDO
     ImageView imagenGil;
     ImageView imagenGil2;
@@ -78,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
         imagenGil= (ImageView)findViewById(R.id.imageView);
         imagenGil2= (ImageView)findViewById(R.id.imageView2);
-
-        imagenGil.setOnClickListener(new View.OnClickListener() {
+        //Imagenes por boton
+        /*imagenGil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 imagenGil.setImageResource(R.drawable.botonoprimido);
@@ -94,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 numim=2;
                 openGallery();
             }
-        });
+        });*/
         //ARMANDO
         txt = (TextView) findViewById(R.id.textView2);
         btn = (Button) findViewById(R.id.button);
@@ -119,10 +124,8 @@ public class MainActivity extends AppCompatActivity {
     //ARMANDO
     public void mostrarPuntos(View v)  {
         final String path = edt.getText().toString();
-        txt.setText(path);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference(PATH_START).child(path).child(path);
-        System.out.println(reference);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -132,8 +135,19 @@ public class MainActivity extends AppCompatActivity {
                     String lectura = jsonPoints.getString("imgPuntos");
                     puntosJson = jsonPoints.getJSONArray("imgPuntos");
                     for (int j=0; j< puntosJson.length(); j++){
-                        txt.setText(puntosJson.getJSONObject(j).get("xy").toString());
+                        String xy = puntosJson.getJSONObject(j).get("xy").toString();// String que tiene xy
+                        String xyy [] = xy.split("-"); // split para separar el x y y
+                        String x = xyy[0] ;
+                        String y = xyy[1];
+                        float xF = Float.parseFloat(x);//float de la coordenada x del punto i
+                        float yF = Float.parseFloat(y);// float de la coordenada y del punto i
+                        puntosGuardar.add(new Rect(Math.round(xF), Math.round(yF),0,0)); // arreglo de recto con solo x y y con cada punto de la iamgen por id
+                        txt.setText(puntosGuardar.get(j).x + "----" + puntosGuardar.get(j).y);
+                        Log.d("puntos Armando: ", "" + puntosGuardar.size()+"x: "+puntosGuardar.get(j).x + "---- y: " + puntosGuardar.get(j).y);
+                        //com.example.personal.proyecto.Rect rect = new com.example.personal.proyecto.Rect();
                     }
+                    traerImgByName(path);
+                    Toast.makeText(MainActivity.this,"puntosguadar tamaño" + puntosGuardar.size(), Toast.LENGTH_LONG).show();
                     //traerImgByName(path);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -145,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"No se puede cargar el cosiaso", Toast.LENGTH_LONG).show();
             }
         });
-        traerImgByName(path);
+
     }
     public void traerImgByName(String nombre) {
         String img = nombre + ".jpg";
@@ -157,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                             Bitmap bitImg = BitmapFactory.decodeFile(localFile.getPath());
-                            txt.setText("bitmap" + bitImg);
+                            llamado(bitImg,1);
                             final RequestOptions options = new RequestOptions()
                                     .centerCrop()
                                     .diskCacheStrategy(DiskCacheStrategy.ALL);
@@ -173,8 +187,9 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "error" + e, Toast.LENGTH_LONG).show();
         }
     }
+
     //ARMANDO
-    public String llamado(Bitmap bitmap,int numi){
+    public void llamado(Bitmap bitmap,int numi){
         //escalar
         String blabla = "wid original: "+bitmap.getWidth()+" hei original: "+bitmap.getHeight()+"\n";
 
@@ -199,9 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
             RelativeLayout layout1 = (RelativeLayout) findViewById(R.id.layout1);
 
-            ArrayList<Rect> pun = new ArrayList<Rect>();
-            ArrayList<Rect> contraste = new ArrayList<Rect>();
-            ArrayList<Rect> brillo = new ArrayList<Rect>();
+
             puntos objP = new puntos();
             Log.d("id imagen ", "" + nose.getId());
             AssetManager asset = getBaseContext().getAssets();
@@ -213,8 +226,9 @@ public class MainActivity extends AppCompatActivity {
             imagenGil2.setImageResource(R.drawable.boton2);
             Lienzo fondo = new Lienzo(this, bitmap, lalala.width, lalala.height, lalala.x, lalala.y, pun);
             layout1.addView(fondo);
+            precision(puntosGuardar,pun);
         }
-        return blabla;
+        //return pun;
     }
 
     class Lienzo extends View {
@@ -278,25 +292,31 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            tv1.setText(llamado(bitmap,numim));
+            //tv1.setText(llamado(bitmap,numim));
         }
     }
-    public void precision(ArrayList<Rect> imgInput,ArrayList<Rect> imgOriginal) {
-        ArrayList<Float> precisionPuntos = new ArrayList<Float>();//Este guarda el porcentaje de error
-        ArrayList<String> valorVectores = new ArrayList<String>(); // revisar el listado de puntos
-        float precision = 0;
-        for(int i = 0 ; i < imgInput.size() ; i ++ ){
-            float vectorPosInputX = imgInput.get(i).x;
-            float vectorPosOriX  = imgOriginal.get(i).x;
-            float vectorPosInputY = imgInput.get(i).y;
-            float vectorPosOriY  = imgOriginal.get(i).y;
-            valorVectores.add("\n"+"Vector entrante" + vectorPosInputX+"\n"+"Vector original" + vectorPosOriX);
-            precision = (((Math.abs(  vectorPosInputX - vectorPosOriX)) / Math.abs(vectorPosOriX)) * 100) ; // 100 - (|aproximado - exacto|/ exacto)*100
-            precisionPuntos.add(precision);
-            valorVectores.add("\n"+"Vector entrante" + vectorPosInputY+"\n"+"Vector original" + vectorPosOriY);
-            precision = (((Math.abs(  vectorPosInputY - vectorPosOriY)) / Math.abs(vectorPosOriY)) * 100) ; // 100 - (|aproximado - exacto|/ exacto)*100
-            precisionPuntos.add(precision);
+    public void guardarPorcentajes(ArrayList<Float> p){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference reference = database.getReference(PATH_STARTPOR);
+        for(int i = 0 ; i< p.size() ; i++){
+            reference.push().child(i+"").setValue(p); // guarda en firebase un objeto con nombre i y valor p
         }
+        Toast.makeText(this,"Cargo: "+ p.size(),Toast.LENGTH_LONG).show();
+    }
+    public void precision(ArrayList<Rect> armandoP,ArrayList<Rect> imgOriginal) {
+        for(int i = 0 ; i < armandoP.size() ; i ++){
+            float xA = armandoP.get(i).x; // posición x del objeto rect que solo tiene x y y
+            float yA = armandoP.get(i).y;// posición y del objeto rect que solo tiene x y y
+            float xD = imgOriginal.get(i).x;
+            float yD = imgOriginal.get(i).y;
+            float precisionX = (((Math.abs(  xA - xD)) / Math.abs(xD)) * 100) ; // 100 - (|aproximado - exacto|/ exacto)*100
+            float precisionY = (((Math.abs(  yA - yD)) / Math.abs(yD)) * 100) ; // 100 - (|aproximado - exacto|/ exacto)*100
+            float promedio  = (precisionX + precisionY) / 2;
+            precisionPorcentaje.add(promedio); // se agrega el valor promedio del error en x y y
+
+        }
+        Toast.makeText(MainActivity.this,"precision porcentaje: " + armandoP.size(), Toast.LENGTH_LONG).show();
+        guardarPorcentajes(precisionPorcentaje);
     }
 
 
